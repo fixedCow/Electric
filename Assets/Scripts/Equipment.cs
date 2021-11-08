@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-public abstract class Equipment : InteractableObject
+public abstract class Equipment : InformativeObject
 {
-    [ShowInInspector] protected WorkerFSM user;
-    [ShowInInspector] protected WorkerFSM.State userState;
-    [ShowInInspector] protected int oldAge;
+    [SerializeField] protected WorkerFSM user;
+    [SerializeField] protected WorkerFSM.State userState;
+    [SerializeField] protected int oldAge;
 }

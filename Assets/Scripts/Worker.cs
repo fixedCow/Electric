@@ -4,55 +4,28 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using DG.Tweening;
 
-public class Worker : InteractableObject
+public class Worker : InformativeObject
 {
-    [ShowInInspector] private string nameField;
-    [ShowInInspector] private int age;
-    [ShowInInspector] private int workYear;
-    [ShowInInspector] private int happiness;
-    [ShowInInspector] private int health;
+    [SerializeField] private string nameField;
+    [SerializeField] private int age;
+    [SerializeField] private int workYear;
+    [SerializeField] private int happiness;
+    [SerializeField] private int health;
     [ReadOnly] [ShowInInspector] public int income { get { int _income = age <= 3 ? 2 : 5; return _income + workYear; } }
     [ReadOnly] [ShowInInspector] public float laborForce { get { float _laborForce = age <= 3 ? 3 : 5; return _laborForce + Mathf.Lerp(0f, 10f, (float)workYear / 10f); } }
-    [ShowInInspector] private bool isPaidAlready;
+    [SerializeField] private bool isPaidAlready;
 
     private void OnEnable()
     {
         Initialize();
     }
-    public override void OnMouseEnter()
+    public void OnMouseDown()
     {
-        // CursorManager의 타겟이 이 오브젝트가 아니면 하이라이트 처리, 맞다면 return;
-        Debug.Log("Enter");
-    }
-    public override void OnMouseExit()
-    {
-        Debug.Log("Exit");
-    }
-    public void OnMouseDrag()
-    {
-        // OnMouseExit();
-        Debug.Log("Draged");
+        CursorManager.instance.ObjectMouseDown(this);
     }
     public void OnMouseUp()
     {
-        // OnMouseExit();
-        Debug.Log("Up");
-    }
-    public override void HighlightOn()
-    {
-
-    }
-    public override void HighlightOff()
-    {
-
-    }
-    public override void PrintInfo()
-    {
-
-    }
-    public override void RemoveInfo()
-    {
-
+        CursorManager.instance.ObjectMouseUp();
     }
     public void Initialize()
     {
