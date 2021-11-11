@@ -6,6 +6,9 @@ using DG.Tweening;
 
 public class Worker : InformativeObject
 {
+    [SerializeField] public WorkerFSM fsm;
+    [SerializeField] public Equipment equipment;
+
     [SerializeField] private string nameField;
     [SerializeField] private int age;
     [SerializeField] private int workYear;
@@ -49,4 +52,10 @@ public class Worker : InformativeObject
     public int GetAge() => age;
     public int GetHealth() => Mathf.Clamp(health, 0, happiness);
     public void AddHealth(int num) => health += num;
+    public override void InteractWith(InteractableObject io)
+    {
+        transform.position = io.transform.position;
+        fsm.SetState(io.GetComponent<Equipment>().GetToBeState());
+    }
+    public void SetStateToIdle() => fsm.SetState(WorkerFSM.State.Idle);
 }

@@ -27,13 +27,13 @@ public class CursorManager : MonoBehaviour
         if (cursorInterState == CursorInteractionState.Impossible)
             return;
 
-        if (targetPicked != null)
-            TargetPickedFollowCursor();
+        if (IsTargetPicked())
+            targetPicked.FollowCursor();
     }
     private void ChangeCursorState(CursorInteractionState _cursorInterState)
     {
-        if (targetPicked != null)
-            ReplacePickedTarget();
+        if (IsTargetPicked())
+            targetPicked.Replace();
         cursorInterState = _cursorInterState;
     }
     public void ObjectMouseEnter(InteractableObject target)
@@ -43,7 +43,7 @@ public class CursorManager : MonoBehaviour
         targetMouseOver = target;
         targetMouseOver.HighlightOn();
         // 아무 것도 드래그 하고 있지 않은 상태에서 위를 지나가야만 정보를 출력한다.
-        if (DoesTargetHaveInfo(targetMouseOver))
+        if (targetMouseOver.DoesHaveInfo())
             GetInformativeObject(targetMouseOver).PrintInfo();
     }
     public void ObjectMouseExit(InteractableObject target)
@@ -53,7 +53,7 @@ public class CursorManager : MonoBehaviour
             targetMouseOver.HighlightOff();
             targetMouseOver = null;
         }
-        if (DoesTargetHaveInfo(target))
+        if (target.DoesHaveInfo())
             GetInformativeObject(target).RemoveInfo();
     }
     public void ObjectMouseDown(InteractableObject target)
@@ -67,27 +67,38 @@ public class CursorManager : MonoBehaviour
     }
     public void ObjectMouseUp()
     {
-        ReplacePickedTarget();
+        if (IsTargetMouseOverAvailable())
+        {
+            if (targetPicked.IsSameWith(targetMouseOver))
+                ChangePosition(targetPicked, targetMouseOver);      // 좀 더 깔끔하게 바꿀 순 없을까? 이중 조건문 너무 지저분한데.
+            else
+                targetPicked.InteractWith(targetMouseOver);
+        }
+        // targetPicked.Replace();
+        targetPicked.SetOriginPosition(targetPicked.transform.position);
         ObjectMouseExit(targetPicked);
         PutTheTarget();
     }
     private void HoldTheTarget(InteractableObject target)
     {
         targetPicked = target;
-        SetTargetPickedSortingOrder(100);
-        SetTargetPicekdLayerToIgnoreRaycast();
+        targetPicked.SetSortingOrder(100);
+        targetPicked.SetLayer("Ignore Raycast");
     }
     private void PutTheTarget()
     {
-        SetTargetPickedSortingOrder(0);
-        SetTargetPickedLayerToObject();
+        targetPicked.SetSortingOrder(0);
+        targetPicked.SetLayer("Object");
         targetPicked = null;
     }
-    private void ReplacePickedTarget() => targetPicked.transform.position = targetPicked.GetComponent<InteractableObject>().GetOriginPosition();
-    private void SetTargetPickedSortingOrder(int num) => targetPicked.appearance.GetComponent<SpriteRenderer>().sortingOrder = num;
-    private void SetTargetPicekdLayerToIgnoreRaycast() => targetPicked.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-    private void SetTargetPickedLayerToObject() => targetPicked.gameObject.layer = LayerMask.NameToLayer("Object");
-    private void TargetPickedFollowCursor() => targetPicked.transform.position = Utils.mousePos;
-    private bool DoesTargetHaveInfo(InteractableObject target) => target.gameObject.GetComponent<InformativeObject>() != null ? true : false;
+    public bool IsTargetPicked() => targetPicked != null ? true : false;
     private InformativeObject GetInformativeObject(InteractableObject target) => target.gameObject.GetComponent<InformativeObject>();
+    private bool IsTargetMouseOverAvailable() => targetMouseOver != null ? true : false;
+    private void ChangePosition(InteractableObject picked, InteractableObject mouseover)
+    {
+        picked.transform.position = mouseover.transform.position;
+        mouseover.transform.position = picked.GetOriginPosition();
+        picked.SetOriginPosition(picked.transform.position);
+        mouseover.SetOriginPosition(mouseover.transform.position);
+    }
 }

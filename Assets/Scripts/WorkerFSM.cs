@@ -86,7 +86,7 @@ public class WorkerFSM : MonoBehaviour
             yield return null;
 
             // CONDITION
-            if (state == State.Picked)
+            if (state != State.Idle)
             {
                 break;
             }
@@ -116,12 +116,17 @@ public class WorkerFSM : MonoBehaviour
     private IEnumerator FSMWork()
     {
         // ENTER
-
+        float _value = 0;
         // ACTION
         while (true)
         {
             yield return null;
-            info.AddHealth((int)-Time.deltaTime);
+            _value += Time.deltaTime;
+            if (_value > 1)
+            {
+                info.AddHealth(-1);
+                _value = 0;
+            }
 
             // CONDITION
             if (info.GetHealth() == 0)
